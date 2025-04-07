@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Giao diện xem phim</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #181818;
+        color: white;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #202020;
+        padding: 10px 20px;
+      }
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: aqua;
+      }
+      .search-container {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        margin: 0 20px;
+      }
+      .search-container input {
+        width: 200px;
+        margin: 0 10px;
+        padding: 8px;
+        background-color: #121212;
+        color: white;
+        border: 1px solid #303030;
+        border-radius: 5px;
+      }
+      .nav-menu {
+        display: flex;
+        gap: 15px;
+        margin-right: 20px;
+      }
+      .nav-item {
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      .nav-item:hover {
+        color: #ffcc00;
+      }
+      main {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #282828;
+        border-radius: 10px;
+      }
+      .video-container {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        position: relative;
+      }
+      video {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .video-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .video-actions button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        background-color: #3d3d3d;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        min-height: 36px;
+      }
+      .video-actions button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .like-btn {
+        background-color: #4267b2;
+      }
+      .like-btn.active {
+        background-color: #1e3c8b;
+      }
+      .favorite-btn {
+        background-color: #ffcc00;
+        color: #000 !important;
+        position: relative;
+        overflow: hidden;
+      }
+      .favorite-btn.active {
+        background-color: #ff9900;
+        animation: pulse 0.5s;
+      }
+      .favorite-btn .icon {
+        transition: transform 0.3s;
+      }
+      .favorite-btn.active .icon {
+        transform: scale(1.2);
+      }
+      .share-btn {
+        background-color: #25d366;
+      }
+      .icon {
+        font-size: 16px;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .like-count {
+        min-width: 20px;
+        text-align: center;
+        font-weight: bold;
+      }
+      .star-particle {
+        position: absolute;
+        background-color: gold;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: star-fly 1s forwards;
+      }
+      @keyframes star-fly {
+        0% {
+          transform: translate(0, 0) scale(0.5);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0);
+          opacity: 0;
+        }
+      }
+      .episode-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin: 20px 0;
+      }
+      .episode-list button {
+        padding: 10px 15px;
+        background-color: #444;
+        border: none;
+        cursor: pointer;
+        color: white;
+        border-radius: 5px;
+      }
+      .episode-list button:hover {
+        background-color: #ffcc00;
+        color: black;
+      }
+      .favorites-container {
+        margin-top: 30px;
+        padding: 20px;
+        background: #383838;
+        border-radius: 10px;
+      }
+      .favorites-list {
+        list-style: none;
+        padding: 0;
+      }
+      .favorites-list li {
+        padding: 10px;
+        border-bottom: 1px solid #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .remove-favorite {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      .comments-section {
+        margin-top: 30px;
+        padding: 20px;
+        background: #383838;
+        border-radius: 10px;
+      }
+      .comments-header {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #555;
+        padding-bottom: 10px;
+      }
+      .comment-form {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .comment-input {
+        flex-grow: 1;
+        padding: 10px 15px;
+        background-color: #121212;
+        color: white;
+        border: 1px solid #303030;
+        border-radius: 5px;
+        outline: none;
+      }
+      .comment-submit {
+        padding: 10px 20px;
+        background-color: #ff9800;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+      .user-comments {
+        margin-top: 20px;
+      }
+      .user-comment {
+        padding: 15px 0;
+        border-bottom: 1px solid #555;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .no-comments {
+        color: #aaa;
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+      }
+      .rating-container {
+        margin-top: 30px;
+        padding: 20px;
+        background: #383838;
+        border-radius: 10px;
+      }
+      .rating-title {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+      }
+      .stars-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 15px;
+      }
+      .star {
+        font-size: 30px;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s;
+        margin: 0 5px;
+      }
+      .star:hover,
+      .star.active {
+        color: #ffcc00;
+      }
+      .rating-text {
+        text-align: center;
+        font-size: 16px;
+        margin-bottom: 15px;
+        min-height: 24px;
+      }
+      .rating-submit {
+        padding: 10px 20px;
+        background-color: #ff9800;
+        color: black;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        display: block;
+        margin: 0 auto;
+      }
+      .rating-result {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: bold;
+      }
+      .average-rating {
+        text-align: center;
+        font-size: 18px;
+        margin-top: 15px;
+        color: #ffcc00;
+        /* Thêm vào phần CSS */
+        @media (max-width: 768px) {
+          .movie-detail {
+            flex-direction: column;
+          }
+
+          .movie-poster {
+            flex: 0 0 auto;
+            margin-bottom: 20px;
+            max-width: 250px;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          .episodes-list {
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+          }
+
+          .header-content {
+            flex-direction: column;
+            gap: 15px;
+          }
+
+          .search-box input {
+            width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .movie-meta {
+            flex-direction: column;
+            gap: 8px;
+          }
+
+          .episodes-list {
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+          }
+
+          .movie-title {
+            font-size: 22px;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Phim Hay FHD</div>
+      <div class="nav-menu">
+        <a href="#" class="nav-item">Phim Lẻ</a>
+        <a href="#" class="nav-item">Phim Bộ</a>
+        <a href="#" class="nav-item">Quốc gia</a>
+        <a href="#" class="nav-item">Diễn Viên</a>
+        <a href="#" class="nav-item">Lịch chiếu</a>
+        <a href="#" class="nav-item">Tài trạng đang</a>
+        <a href="#" class="nav-item">Thành viên</a>
+      </div>
+      <div class="search-container">
+        <input type="text" placeholder="Tìm tắm phm, dấu viên..." />
+        <button>Tìm kiếm</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="video-container">
+        <video controls>
+          <source src="video1.mp4" type="video/mp4" />
+          Trình duyệt không hỗ trợ video.
+        </video>
+
+        <div class="video-actions">
+          <button class="like-btn" onclick="handleLike()">
+            <span class="icon">👍</span>
+            <span class="like-count">0</span> Like
+          </button>
+
+          <button
+            class="favorite-btn"
+            id="favorite-btn"
+            onclick="toggleFavorite('Tiêu đề Video')"
+          >
+            <span class="icon">⭐</span> Thêm vào yêu thích
+          </button>
+
+          <button class="share-btn">
+            <span class="icon">🔗</span> Chia sẻ
+          </button>
+        </div>
+      </div>
+
+      <h1>Tiêu đề Video</h1>
+
+      <h2>Danh sách tập phim</h2>
+      <div class="episode-list">
+        <button>Tập 1</button>
+        <button>Tập 2</button>
+        <button>Tập 3</button>
+        <button>Tập 4</button>
+        <button>Tập 5</button>
+        <button>Tập 6</button>
+        <button>Tập 7</button>
+        <button>Tập 8</button>
+        <button>Tập 9</button>
+        <button>Tập 10</button>
+        <button>Tập 11</button>
+        <button>Tập 12</button>
+      </div>
+
+      <div class="rating-container">
+        <h2 class="rating-title">Đánh giá phim</h2>
+        <div class="stars-container" id="stars-container">
+          <span class="star" data-rating="1">★</span>
+          <span class="star" data-rating="2">★</span>
+          <span class="star" data-rating="3">★</span>
+          <span class="star" data-rating="4">★</span>
+          <span class="star" data-rating="5">★</span>
+        </div>
+        <div class="rating-text" id="rating-text">
+          Vui lòng chọn số sao đánh giá
+        </div>
+        <button
+          class="rating-submit"
+          id="rating-submit"
+          onclick="submitRating()"
+        >
+          Gửi đánh giá
+        </button>
+        <div class="rating-result" id="rating-result"></div>
+        <div class="average-rating" id="average-rating">
+          Điểm trung bình: Chưa có đánh giá
+        </div>
+      </div>
+
+      <div class="comments-section">
+        <div class="comments-header">Bình luận</div>
+        <div class="comment-form">
+          <input
+            type="text"
+            class="comment-input"
+            id="comment-input"
+            placeholder="Nhập bình luận..."
+          />
+          <button class="comment-submit" onclick="submitComment()">Gửi</button>
+        </div>
+        <div class="user-comments" id="user-comments">
+          <div class="no-comments" id="no-comments">Chưa có bình luận nào</div>
+        </div>
+      </div>
+    </main>
+
+    <section class="favorites-container">
+      <h2>Danh sách yêu thích</h2>
+      <ul class="favorites-list" id="favorites-list"></ul>
+    </section>
+
+    <script>
+      // Biến lưu trữ trạng thái
+      let likeCount = 0;
+      let isLiked = false;
+      let isFavorited = false;
+      let currentRating = 0;
+
+      // Hàm xử lý like
+      function handleLike() {
+        const likeBtn = document.querySelector(".like-btn");
+        const likeCountEl = document.querySelector(".like-count");
+
+        if (isLiked) {
+          likeCount--;
+          likeBtn.classList.remove("active");
+        } else {
+          likeCount++;
+          likeBtn.classList.add("active");
+        }
+
+        likeCountEl.textContent = likeCount;
+        isLiked = !isLiked;
+
+        localStorage.setItem("videoLikeCount", likeCount);
+        localStorage.setItem("videoIsLiked", isLiked);
+      }
+
+      // Hàm bật/tắt yêu thích
+      function toggleFavorite(videoTitle) {
+        const favoriteBtn = document.getElementById("favorite-btn");
+
+        // Tạo hiệu ứng sao bắn
+        createStarParticles(favoriteBtn);
+
+        // Đổi trạng thái
+        isFavorited = !isFavorited;
+        favoriteBtn.classList.toggle("active", isFavorited);
+
+        if (isFavorited) {
+          favoriteBtn.innerHTML = '<span class="icon">⭐</span> Đã thích';
+          addToFavorites(videoTitle);
+        } else {
+          favoriteBtn.innerHTML =
+            '<span class="icon">⭐</span> Thêm vào yêu thích';
+          removeFromFavorites(videoTitle);
+        }
+      }
+
+      function createStarParticles(element) {
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        for (let i = 0; i < 10; i++) {
+          const particle = document.createElement("div");
+          particle.className = "star-particle";
+          particle.style.width = `${Math.random() * 8 + 4}px`;
+          particle.style.height = particle.style.width;
+
+          // Random direction
+          const angle = Math.random() * Math.PI * 2;
+          const distance = Math.random() * 50 + 30;
+          const tx = Math.cos(angle) * distance;
+          const ty = Math.sin(angle) * distance;
+
+          particle.style.setProperty("--tx", `${tx}px`);
+          particle.style.setProperty("--ty", `${ty}px`);
+          particle.style.left = `${centerX}px`;
+          particle.style.top = `${centerY}px`;
+
+          document.body.appendChild(particle);
+
+          // Remove after animation
+          setTimeout(() => {
+            particle.remove();
+          }, 1000);
+        }
+      }
+
+      function addToFavorites(videoTitle) {
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        if (!favorites.includes(videoTitle)) {
+          favorites.push(videoTitle);
+          localStorage.setItem("favorites", JSON.stringify(favorites));
+          displayFavorites();
+        }
+      }
+
+      function removeFromFavorites(videoTitle) {
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        favorites = favorites.filter((video) => video !== videoTitle);
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        displayFavorites();
+      }
+
+      function displayFavorites() {
+        let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        let favoritesList = document.getElementById("favorites-list");
+        favoritesList.innerHTML = "";
+
+        if (favorites.length === 0) {
+          favoritesList.innerHTML = "<li>Chưa có video yêu thích</li>";
+          return;
+        }
+
+        favorites.forEach((video) => {
+          let li = document.createElement("li");
+          li.textContent = video;
+
+          let removeButton = document.createElement("button");
+          removeButton.textContent = "Xóa";
+          removeButton.classList.add("remove-favorite");
+          removeButton.onclick = function () {
+            if (video === "Tiêu đề Video") {
+              const favoriteBtn = document.getElementById("favorite-btn");
+              favoriteBtn.classList.remove("active");
+              favoriteBtn.innerHTML =
+                '<span class="icon">⭐</span> Thêm vào yêu thích';
+              isFavorited = false;
+            }
+            removeFromFavorites(video);
+          };
+
+          li.appendChild(removeButton);
+          favoritesList.appendChild(li);
+        });
+      }
+
+      function submitComment() {
+        const commentInput = document.getElementById("comment-input");
+        const commentText = commentInput.value.trim();
+
+        if (commentText === "") {
+          alert("Vui lòng nhập bình luận!");
+          return;
+        }
+
+        let comments = JSON.parse(localStorage.getItem("comments")) || [];
+        comments.push(commentText);
+        localStorage.setItem("comments", JSON.stringify(comments));
+
+        commentInput.value = "";
+        displayComments();
+      }
+
+      function displayComments() {
+        let comments = JSON.parse(localStorage.getItem("comments")) || [];
+        const userCommentsContainer = document.getElementById("user-comments");
+        const noCommentsMessage = document.getElementById("no-comments");
+
+        userCommentsContainer.innerHTML = "";
+
+        if (comments.length === 0) {
+          noCommentsMessage.style.display = "block";
+          userCommentsContainer.appendChild(noCommentsMessage);
+        } else {
+          noCommentsMessage.style.display = "none";
+          comments.forEach((comment) => {
+            const commentDiv = document.createElement("div");
+            commentDiv.classList.add("user-comment");
+            commentDiv.textContent = comment;
+            userCommentsContainer.appendChild(commentDiv);
+          });
+        }
+      }
+
+      // Xử lý đánh giá sao
+      function setupStarRating() {
+        const stars = document.querySelectorAll(".star");
+        const ratingText = document.getElementById("rating-text");
+
+        stars.forEach((star) => {
+          star.addEventListener("mouseover", function () {
+            const rating = parseInt(this.getAttribute("data-rating"));
+            highlightStars(rating);
+            updateRatingText(rating);
+          });
+
+          star.addEventListener("mouseout", function () {
+            if (currentRating === 0) {
+              resetStars();
+              ratingText.textContent = "Vui lòng chọn số sao đánh giá";
+            } else {
+              highlightStars(currentRating);
+              updateRatingText(currentRating);
+            }
+          });
+
+          star.addEventListener("click", function () {
+            currentRating = parseInt(this.getAttribute("data-rating"));
+            updateRatingText(currentRating);
+          });
+        });
+      }
+
+      function highlightStars(rating) {
+        const stars = document.querySelectorAll(".star");
+        stars.forEach((star) => {
+          const starRating = parseInt(star.getAttribute("data-rating"));
+          if (starRating <= rating) {
+            star.classList.add("active");
+          } else {
+            star.classList.remove("active");
+          }
+        });
+      }
+
+      function resetStars() {
+        const stars = document.querySelectorAll(".star");
+        stars.forEach((star) => {
+          star.classList.remove("active");
+        });
+      }
+
+      function updateRatingText(rating) {
+        const ratingText = document.getElementById("rating-text");
+        const descriptions = [
+          "",
+          "Rất không hài lòng",
+          "Không hài lòng",
+          "Bình thường",
+          "Hài lòng",
+          "Rất hài lòng",
+        ];
+        ratingText.textContent =
+          descriptions[rating] || "Vui lòng chọn số sao đánh giá";
+      }
+
+      function submitRating() {
+        const ratingResult = document.getElementById("rating-result");
+
+        if (currentRating === 0) {
+          alert("Vui lòng chọn số sao trước khi gửi đánh giá!");
+          return;
+        }
+
+        // Lưu đánh giá
+        let ratings = JSON.parse(localStorage.getItem("movieRatings")) || [];
+        const newRating = {
+          rating: currentRating,
+          date: new Date().toLocaleString("vi-VN"),
+        };
+        ratings.push(newRating);
+        localStorage.setItem("movieRatings", JSON.stringify(ratings));
+
+        // Hiển thị kết quả
+        ratingResult.textContent = `Cảm ơn bạn đã đánh giá ${currentRating} sao!`;
+
+        // Cập nhật điểm trung bình
+        updateAverageRating();
+
+        // Reset
+        setTimeout(() => {
+          ratingResult.textContent = "";
+          currentRating = 0;
+          resetStars();
+          document.getElementById("rating-text").textContent =
+            "Vui lòng chọn số sao đánh giá";
+        }, 2000);
+      }
+
+      function updateAverageRating() {
+        const averageRatingElement = document.getElementById("average-rating");
+        let ratings = JSON.parse(localStorage.getItem("movieRatings")) || [];
+
+        if (ratings.length === 0) {
+          averageRatingElement.textContent =
+            "Điểm trung bình: Chưa có đánh giá";
+          return;
+        }
+
+        const total = ratings.reduce((sum, r) => sum + r.rating, 0);
+        const average = (total / ratings.length).toFixed(1);
+
+        averageRatingElement.textContent = `Điểm trung bình: ${average}/5 (${ratings.length} đánh giá)`;
+      }
+
+      // Khởi tạo trạng thái khi tải trang
+      document.addEventListener("DOMContentLoaded", function () {
+        // Like
+        const savedLikeCount = localStorage.getItem("videoLikeCount");
+        const savedIsLiked = localStorage.getItem("videoIsLiked");
+
+        if (savedLikeCount) {
+          likeCount = parseInt(savedLikeCount);
+          document.querySelector(".like-count").textContent = likeCount;
+        }
+
+        if (savedIsLiked === "true") {
+          isLiked = true;
+          document.querySelector(".like-btn").classList.add("active");
+        }
+
+        // Yêu thích
+        const videoTitle = "Tiêu đề Video";
+        const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        if (favorites.includes(videoTitle)) {
+          isFavorited = true;
+          const favoriteBtn = document.getElementById("favorite-btn");
+          favoriteBtn.classList.add("active");
+          favoriteBtn.innerHTML = '<span class="icon">⭐</span> Đã thích';
+        }
+
+        // Đánh giá sao
+        setupStarRating();
+        updateAverageRating();
+
+        // Hiển thị danh sách
+        displayFavorites();
+        displayComments();
+      });
+    </script>
+  </body>
+</html>
